@@ -1,6 +1,7 @@
 import pymongo
 from flask import Flask,request
 from flask_restful import Resource ,Api ,reqparse
+from datetime import datetime,date
 
 client = pymongo.MongoClient('localhost',27017)
 
@@ -12,7 +13,7 @@ parser.add_argument('username')
 parser.add_argument('password')
 parser.add_argument('firstname')
 parser.add_argument('lastname')
-parser.add_argument('employee_number')
+parser.add_argument('number')
 
 db = client.db_EX01
 mb = db.mb
@@ -20,22 +21,22 @@ mb = db.mb
 class Reg(Resource):
         def post(self):
                 args = parser.parse_args()
-                id = args['employee_number']
+                id = args['number']
                 firstname = args['firstname']
                 lastname = args['lastname']
                 password = args['password']
-                data = mb.find_one({"user.employee_number":id})
+                data = mb.find_one({"user.number":id})
                 if(data):
                         return {"err":"has this id"}
-                mb.insert({"user":{"employee_number":id,"firstname":firstname,"lastname":lastname,"password":password},"list":[]})
-                return {"firstname":firstname,"lastname":lastname,"employee_number":id,"password":password}
+                mb.insert({"user":{"number":id,"firstname":firstname,"lastname":lastname,"password":password},"list":[]})
+                return {"firstname":firstname,"lastname":lastname,"number":id,"password":password}
 
 
 class History(Resource):
         def get(self):
                 args = parser.parse_args()
                 id = args['id']
-                data = mb.find_one({"user.employee_number":id})
+                data = mb.find_one({"user.number":id})
                 if(data):
                         firstname = data['user']['firstname']
                         lastname = data['user']['lastname']
@@ -43,18 +44,17 @@ class History(Resource):
                         return {"firstname":firstname,"lastname":lastname,"list":list_work}
                 return {}
 
-from datetime import datetime,date
 class Login(Resource):
         def post(self):
                 args = parser.parse_args()
                 username = args['username']
                 password = args['password']
-                data = mb.find_one({"user.employee_number":username,"user.pastword":password})
+                data = mb.find_one({"user.number":username,"user.password":password})
                 if(data):
                         firstname = data['user']['firstname']
                         lastname = data['user']['lastname']
                         datetime_login = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-                        mb.update({"user.employee_number":username},{"$push":{"list":{"datetime":datetime_login}}})
+                        mb.update({"user.number":username},{"$push":{"list":{"datetime":datetime_login}}})
                         return {"firstname":firstname,"lastname":lastname,"datetime":datetime_login}
                 return {}
 api.add_resource(Reg,'/api/reg')
