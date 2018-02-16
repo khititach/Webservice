@@ -57,7 +57,7 @@ class Login(Resource):
                         mb.update({"user.number":username},{"$push":{"list":{"datetime":datetime_login}}})
                         return {"firstname":firstname,"lastname":lastname,"datetime":datetime_login}
                 return {}
-api.add_resource(Reg,'/api/reg')
+api.add_resource(Reg,'/api/regis')
 api.add_resource(Login,'/api/login')
 api.add_resource(History,'/api/list')
 
